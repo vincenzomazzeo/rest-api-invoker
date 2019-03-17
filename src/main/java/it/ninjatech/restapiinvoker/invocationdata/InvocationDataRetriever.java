@@ -1,3 +1,26 @@
+/*
+MIT License
+
+Copyright (c) 2019 Vincenzo Mazzeo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
 package it.ninjatech.restapiinvoker.invocationdata;
 
 import java.lang.annotation.Annotation;
@@ -20,8 +43,24 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-public class InvocationDataRetriever {
+/**
+ * <p>
+ * Utility class used to retrieve the data to be used for the REST call.
+ * </p>
+ *
+ * @author Vincenzo Mazzeo
+ * @version 1.0
+ * @since 1.0.0
+ */
+public final class InvocationDataRetriever {
 
+	/**
+	 * Retrieves the data.
+	 *
+	 * @param basePath Base path
+	 * @param invocation Invocation data
+	 * @return {@link InvocationData}
+	 */
 	public static InvocationData retrieve(String basePath, MethodInvocation invocation) {
 		InvocationData result = new InvocationData();
 
@@ -35,6 +74,14 @@ public class InvocationDataRetriever {
 		return result;
 	}
 
+	/**
+	 * Processes request mapping annotations and adds the related data to the
+	 * {@link InvocationData}.
+	 *
+	 * @param invocationData {@link InvocationData}
+	 * @param type Type
+	 * @param method Method
+	 */
 	private static void processRequestMappingAnnotation(InvocationData invocationData, Class<?> type, Method method) {
 		RequestMapping methodRequestMapping = method.getAnnotation(RequestMapping.class);
 		if (methodRequestMapping == null) {
@@ -70,6 +117,13 @@ public class InvocationDataRetriever {
 		}
 	}
 
+	/**
+	 * Processes arguments and adds the related data to the {@link InvocationData}.
+	 *
+	 * @param invocationData Invocation data
+	 * @param argumentParameters Argument parameters
+	 * @param argumentValues Argument values
+	 */
 	private static void processArguments(InvocationData invocationData, Parameter[] argumentParameters, Object[] argumentValues) {
 		for (int i = 0, n = argumentParameters.length; i < n; i++) {
 			Parameter argumentParameter = argumentParameters[i];
@@ -104,14 +158,34 @@ public class InvocationDataRetriever {
 		checkIfAllPathParamsAreResolved(invocationData);
 	}
 
+	/**
+	 * Processes return type and adds the related data to the
+	 * {@link InvocationData}.
+	 *
+	 * @param invocationData Invocation data
+	 * @param method Method
+	 */
 	private static void processReturnType(InvocationData invocationData, Method method) {
 		invocationData.setResponseType(method.getGenericReturnType());
 	}
 
+	/**
+	 * Gets the HTTP method.
+	 *
+	 * @param methodRequestMapping Request mapping
+	 * @return HTTP method
+	 */
 	private static HttpMethod getHttpMethod(RequestMapping methodRequestMapping) {
 		return methodRequestMapping.method().length > 0 ? HttpMethod.resolve(methodRequestMapping.method()[0].name()) : null;
 	}
 
+	/**
+	 * Gets the endpoint.
+	 *
+	 * @param classRequestMapping Request mapping
+	 * @param methodRequestMapping Request mapping
+	 * @return Endpoint
+	 */
 	private static String getEndpoint(RequestMapping classRequestMapping, RequestMapping methodRequestMapping) {
 		StringBuilder result = new StringBuilder();
 
@@ -135,6 +209,13 @@ public class InvocationDataRetriever {
 		return result.toString();
 	}
 
+	/**
+	 * Gets the value of the consume header.
+	 *
+	 * @param classRequestMapping Request mapping
+	 * @param methodRequestMapping Request mapping
+	 * @return Value of the consume header
+	 */
 	private static String getConsumes(RequestMapping classRequestMapping, RequestMapping methodRequestMapping) {
 		String result = null;
 
@@ -149,6 +230,13 @@ public class InvocationDataRetriever {
 		return result;
 	}
 
+	/**
+	 * Gets the value of the produce header.
+	 *
+	 * @param classRequestMapping Request mapping
+	 * @param methodRequestMapping Request mapping
+	 * @return Value of the produce header
+	 */
 	private static String getProduces(RequestMapping classRequestMapping, RequestMapping methodRequestMapping) {
 		String result = null;
 
@@ -163,6 +251,12 @@ public class InvocationDataRetriever {
 		return result;
 	}
 
+	/**
+	 * Gets the URI.
+	 *
+	 * @param requestMapping Request mapping
+	 * @return URI
+	 */
 	private static String getUri(RequestMapping requestMapping) {
 		String uri = null;
 
@@ -174,6 +268,14 @@ public class InvocationDataRetriever {
 		return uri;
 	}
 
+	/**
+	 * Adds the request header to the {@link InvocationData}.
+	 *
+	 * @param invocationData {@link InvocationData}
+	 * @param requestHeader Request header
+	 * @param argumentName Argument name
+	 * @param argumentValue Argument value
+	 */
 	private static void addRequestHeader(InvocationData invocationData, RequestHeader requestHeader, String argumentName, Object argumentValue) {
 		// Header Key
 		String key = requestHeader.value();
@@ -200,6 +302,14 @@ public class InvocationDataRetriever {
 		}
 	}
 
+	/**
+	 * Adds the path param to the {@link InvocationData}.
+	 *
+	 * @param invocationData {@link InvocationData}
+	 * @param pathVariable Path variable
+	 * @param argumentName Argument name
+	 * @param argumentValue Argument value
+	 */
 	private static void addPathParam(InvocationData invocationData, PathVariable pathVariable, String argumentName, Object argumentValue) {
 		// Path Param Key
 		String key = pathVariable.value();
@@ -214,6 +324,14 @@ public class InvocationDataRetriever {
 		invocationData.addPathParam(key, argumentValue.toString());
 	}
 
+	/**
+	 * Adds the query param to the {@link InvocationData}.
+	 *
+	 * @param invocationData {@link InvocationData}
+	 * @param requestParam Request param
+	 * @param argumentName Argument name
+	 * @param argumentValue Argument value
+	 */
 	private static void addQueryParam(InvocationData invocationData, RequestParam requestParam, String argumentName, Object argumentValue) {
 		// Query Param Key
 		String key = requestParam.value();
@@ -245,6 +363,11 @@ public class InvocationDataRetriever {
 		}
 	}
 
+	/**
+	 * Checks if all path params are resolved.
+	 *
+	 * @param invocationData {@link InvocationData}
+	 */
 	private static void checkIfAllPathParamsAreResolved(InvocationData invocationData) {
 		Pattern pattern = Pattern.compile("\\{(?<pathParam>.+)\\}");
 		String[] pathSegments = invocationData.getEndpoint().split("/");
@@ -257,6 +380,9 @@ public class InvocationDataRetriever {
 		}
 	}
 
+	/**
+	 * Hidden constructor.
+	 */
 	private InvocationDataRetriever() {
 	}
 
