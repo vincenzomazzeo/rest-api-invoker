@@ -76,37 +76,18 @@ public class DefaultHttpRestClient implements HttpRestClient {
 
 	/**
 	 * Constructs a new {@link DefaultHttpRestClient}.
+	 */
+	public DefaultHttpRestClient() {
+		this.restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+	}
+
+	/**
+	 * Constructs a new {@link DefaultHttpRestClient}.
 	 * 
 	 * @param httpClient {@link HttpClient}
 	 */
 	public DefaultHttpRestClient(HttpClient httpClient) {
 		this.restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(httpClient));
-	}
-
-	/**
-	 * Constructs a new {@link DefaultHttpRestClient}.
-	 * 
-	 * @param httpClient {@link HttpClient}
-	 * @param interceptors List of {@link ClientHttpRequestInterceptor}
-	 */
-	public DefaultHttpRestClient(HttpClient httpClient,
-	                             List<ClientHttpRequestInterceptor> interceptors) {
-		this(httpClient);
-		this.restTemplate.setInterceptors(interceptors);
-	}
-
-	/**
-	 * Constructs a new {@link DefaultHttpRestClient}.
-	 * 
-	 * @param httpClient {@link HttpClient}
-	 * @param interceptors List of {@link ClientHttpRequestInterceptor}
-	 * @param messageConverters List of {@link HttpMessageConverter}
-	 */
-	public DefaultHttpRestClient(HttpClient httpClient,
-	                             List<ClientHttpRequestInterceptor> interceptors,
-	                             List<HttpMessageConverter<?>> messageConverters) {
-		this(httpClient, interceptors);
-		this.restTemplate.setMessageConverters(messageConverters);
 	}
 
 	/*
@@ -134,6 +115,26 @@ public class DefaultHttpRestClient implements HttpRestClient {
 		ParameterizedTypeReference<?> responseTypeReference = new ResponseTypeReference<>(responseType);
 
 		return this.restTemplate.exchange(uri, invocationData.getHttpMethod(), requestEntity, responseTypeReference);
+	}
+
+	/**
+	 * Sets the Interceptors.
+	 * 
+	 * @param interceptors
+	 *            Interceptors
+	 */
+	public void setInterceptors(List<ClientHttpRequestInterceptor> interceptors) {
+		this.restTemplate.setInterceptors(interceptors);
+	}
+
+	/**
+	 * Sets the Message Converters.
+	 * 
+	 * @param messageConverters
+	 *            Message Converters
+	 */
+	public void setMessageConverters(List<HttpMessageConverter<?>> messageConverters) {
+		this.restTemplate.setMessageConverters(messageConverters);
 	}
 
 }
